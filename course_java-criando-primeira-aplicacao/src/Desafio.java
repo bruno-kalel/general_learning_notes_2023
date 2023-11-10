@@ -7,7 +7,7 @@ public class Desafio
         Scanner leitura = new Scanner(System.in);
         String nome = "Nome do cliente";
         String tipo = "Corrente";
-        double saldoInicial = 2500;
+        double saldo = 2500;
 
         System.out.printf("""
                 ------------------------------
@@ -23,46 +23,56 @@ public class Desafio
                 3 - Valor sacar
                 4 - Sair
                 
-                """, nome, tipo, saldoInicial);
+                """, nome, tipo, saldo);
 
         int escolha;
 
         do
         {
-            System.out.println("Digite a opção desejada:");
-
-            if (leitura.hasNextInt())
+            do
             {
-                escolha = leitura.nextInt();
-            }
-            else
+                System.out.println("Digite a opção desejada:");
+
+                if (leitura.hasNextInt())
+                {
+                    escolha = leitura.nextInt();
+                }
+                else
+                {
+                    System.out.println("Entrada inválida! Forneça um número inteiro.");
+                    leitura.next();
+                    escolha = -1;
+                }
+            } while (escolha == -1);
+
+            switch (escolha)
             {
-                System.out.println("Entrada inválida! Forneça um número inteiro.");
-                leitura.next();
-                escolha = -1;
+                case 1:
+                    System.out.println(1);
+                    System.out.printf("Valor de saldo: %.2f\n", saldo);
+                    break;
+
+                case 2:
+                    System.out.println(2);
+                    System.out.println("Insira o valor a ser depositado:");
+                    saldo += leitura.nextDouble();
+                    System.out.printf("Novo valor de saldo: %.2f\n", saldo);
+                    break;
+
+                case 3:
+                    System.out.println(3);
+                    System.out.println("Insira o valor a ser sacado:");
+                    saldo -= leitura.nextDouble();
+                    System.out.printf("Novo valor de saldo: %.2f\n", saldo);
+                    break;
+
+                case 4:
+                    System.out.println(4);
+                    break;
+
+                default:
+                    System.out.println("Opção inválida! Tente novamente.");
             }
-        } while (escolha == -1);
-
-        switch (escolha)
-        {
-            case 1:
-                System.out.println(1);
-                break;
-
-            case 2:
-                System.out.println(2);
-                break;
-
-            case 3:
-                System.out.println(3);
-                break;
-
-            case 4:
-                System.out.println(4);
-                break;
-
-            default:
-                System.out.println("Opção inválida! Tente novamente.");
-        }
+        } while (escolha != 4);
     }
 }
