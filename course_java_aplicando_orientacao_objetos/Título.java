@@ -1,6 +1,4 @@
-package course_java_aplicando_orientacao_objetos.modelos.modelos;
-
-public class Filme
+public class Título
 {
     private String nome;
     private int anoDeLançamento;
@@ -18,14 +16,14 @@ public class Filme
         this.anoDeLançamento = anoDeLançamento;
     }
 
+    public int getDuraçãoEmMinutos()
+    {
+        return duraçãoEmMinutos;
+    }
+
     public void setDuraçãoEmMinutos(int duraçãoEmMinutos)
     {
         this.duraçãoEmMinutos = duraçãoEmMinutos;
-    }
-
-    public int getTotalDeAvaliações()
-    {
-        return totalDeAvaliações;
     }
 
     public void exibeFichaTécnica()
