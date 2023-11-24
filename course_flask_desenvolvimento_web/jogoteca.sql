@@ -1,3 +1,6 @@
+drop table jogos;
+drop table usuários;
+
 create table jogos (
     id serial primary key,
     nome varchar(50) not null,
@@ -5,14 +8,14 @@ create table jogos (
     console varchar(20) not null
 );
 
-create table usuarios (
+create table usuários (
     nome varchar(20) not null,
     nickname varchar(8) primary key,
     senha varchar(100) not null
 );
 
-insert into usuarios (nome, nickname, senha)
-values ('usuario', 'u123', 'senha');
+insert into usuários (nome, nickname, senha)
+values ('nome', 'nickname', 'senha');
 
 insert into jogos (nome, categoria, console)
 values 
@@ -25,4 +28,4 @@ values
 	
 select * from jogos;
 
-select * from usuarios;
+select * from usuários;
