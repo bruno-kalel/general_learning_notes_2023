@@ -18,6 +18,15 @@ def novo():
   return render_template('novo.html', title='Novo jogo')
 
 
+@app.route('/editar/<int:identificador>')
+def editar(identificador):
+  if session.get('usuário_autenticado') is None:
+    return redirect(url_for('login', next=url_for('editar')))
+  
+  jogo = Jogos.query.filter_by(id=identificador).first()
+  return render_template('editar.html', title='Editar jogo', jogo=jogo)
+
+
 @app.route('/criar', methods=['POST', ])
 def criar():
   nome = request.form['nome']
@@ -31,6 +40,31 @@ def criar():
   
   db.session.add(Jogos(nome=nome, categoria=categoria, console=console))
   db.session.commit()
+  
+  return redirect(url_for('index'))
+
+
+@app.route('/atualizar', methods=['POST', ])
+def atualizar():
+  jogo = Jogos.query.filter_by(id=request.form['id']).first()
+  jogo.nome = request.form['nome']
+  jogo.categoria = request.form['categoria']
+  jogo.console = request.form['console']
+  
+  db.session.add(jogo)
+  db.session.commit()
+  
+  return redirect(url_for('index'))
+
+
+@app.route('/deletar/<int:identificador>')
+def deletar(identificador):
+  if session.get('usuário_autenticado') is None:
+    return redirect(url_for('login'))
+  
+  Jogos.query.filter_by(id=identificador).delete()
+  db.session.commit()
+  flash('Jogo deletado com sucesso!')
   
   return redirect(url_for('index'))
 
