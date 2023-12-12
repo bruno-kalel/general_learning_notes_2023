@@ -1,9 +1,11 @@
-# pip install flask, flask_sqlalchemy psycopg2
+# pip install flask, flask_sqlalchemy flask-wtf psycopg2
 # pip não é declarado explicitamente, mas precisa ser instalado
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from os import listdir, remove, path
 from time import time
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, validators
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -23,6 +25,16 @@ class Usuários(db.Model):
   nickname = db.Column(db.String(8), primary_key=True)
   senha = db.Column(db.String(100), nullable=False)
 
+
+class FormJogo(FlaskForm):
+  nome = StringField('Nome do jogo',
+                     [validators.DataRequired(), validators.Length(min=1, max=50)])
+  categoria = StringField('Categoria do jogo',
+                          [validators.DataRequired(), validators.Length(min=1, max=40)])
+  console = StringField('Console do jogo',
+                        [validators.DataRequired(), validators.Length(min=1, max=20)])
+  submit = SubmitField('Salvar')
+  
 
 def recuperar_imagem(identificador):
   for nome_arquivo in listdir(app.config['UPLOAD_PATH']):
