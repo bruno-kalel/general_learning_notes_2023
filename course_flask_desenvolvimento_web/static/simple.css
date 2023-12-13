@@ -417,8 +417,7 @@ table caption {
 textarea,
 select,
 input,
-button,
-.button {
+button, .button {
   font-size: inherit;
   font-family: inherit;
   padding: 0.5rem;
@@ -430,12 +429,12 @@ button,
 }
 textarea,
 select,
-input {
+input, .input {
   color: var(--text);
   background-color: var(--bg);
   border: 1px solid var(--border);
 }
-label {
+label, .label {
   display: block;
 }
 textarea:not([cols]) {

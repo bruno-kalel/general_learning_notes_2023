@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jogoteca</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='simple.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
 </head>
 <body>
 <div class="container">
@@ -20,23 +21,20 @@
     <h1>Faça seu login</h1>
     <form method="POST" action="{{ url_for('autenticar') }}">
         <input type="hidden" name="next" value="{{ next }}">
-        <p>
-            <label>Nome de usuário:</label>
-            <label>
-                <input class="form-control" type="text" name="usuário" required>
-            </label>
-        </p>
-        <p>
-            <label>Senha:</label>
-            <label>
-                <input class="form-control" type="password" name="senha" required>
-            </label>
-        </p>
-        <p>
-            <button class="btn btn-primary" type="submit">Entrar</button>
-        </p>
+        {{ form.csrf_token() }}
+        <div>
+            {{ form.nickname.label(class="label") }}
+            {{ form.nickname(class="input") }}
+        </div>
+        <div>
+            {{ form.senha.label(class="label") }}
+            {{ form.senha(class="input") }}
+        </div>
+        <div>
+            {{ form.submit(class="button") }}
+            <a class="button" href="{{ url_for('index') }}">Voltar</a>
+        </div>
     </form>
-    <a class="btn" href="{{ url_for('index') }}">Voltar</a>
 </div>
 </body>
 </html>

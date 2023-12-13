@@ -1,16 +1,18 @@
-# pip install flask, flask_sqlalchemy flask-wtf psycopg2
+# pip install flask flask_sqlalchemy flask-wtf flask-bcrypt psycopg2
 # pip não é declarado explicitamente, mas precisa ser instalado
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from os import listdir, remove, path
 from time import time
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators
+from flask_wtf.csrf import CSRFProtect
+from wtforms import StringField, SubmitField, PasswordField, validators
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
 
 
 class Jogos(db.Model):
@@ -27,13 +29,22 @@ class Usuários(db.Model):
 
 
 class FormJogo(FlaskForm):
-  nome = StringField('Nome do jogo',
+  nome = StringField('Nome',
                      [validators.DataRequired(), validators.Length(min=1, max=50)])
-  categoria = StringField('Categoria do jogo',
+  categoria = StringField('Categoria',
                           [validators.DataRequired(), validators.Length(min=1, max=40)])
-  console = StringField('Console do jogo',
+  console = StringField('Console',
                         [validators.DataRequired(), validators.Length(min=1, max=20)])
   submit = SubmitField('Salvar')
+
+
+class FormLogin(FlaskForm):
+  nickname = StringField('Nickname',
+                         [validators.DataRequired(),
+                          validators.Length(min=1, max=8)])
+  senha = PasswordField('Senha', [validators.DataRequired(),
+                                  validators.Length(min=1, max=100)])
+  submit = SubmitField('Login')
   
 
 def recuperar_imagem(identificador):
@@ -63,8 +74,10 @@ def novo():
     return redirect(url_for('login',
                             next=url_for('novo')))
   
+  form = FormJogo()
   return render_template('novo.html',
-                         title='Novo jogo')
+                         title='Novo jogo',
+                         form=form)
 
 
 @app.route('/editar/<int:identificador>')
@@ -75,19 +88,31 @@ def editar(identificador):
   
   jogo = Jogos.query.filter_by(id=identificador).first()
   
+  form = FormJogo()
+  form.nome.data = jogo.nome
+  form.categoria.data = jogo.categoria
+  form.console.data = jogo.console
+  
   capa_jogo = recuperar_imagem(identificador)
   
   return render_template('editar.html',
                          title='Editar jogo',
-                         jogo=jogo,
-                         capa_jogo=capa_jogo)
+                         id=identificador,
+                         capa_jogo=capa_jogo,
+                         form=form)
 
 
 @app.route('/criar', methods=['POST', ])
 def criar():
-  nome = request.form['nome']
-  categoria = request.form['categoria']
-  console = request.form['console']
+  form = FormJogo(request.form)
+  
+  if not form.validate_on_submit():
+    flash('Erro no formulário!')
+    return redirect(url_for('novo'))
+  
+  nome = form.nome.data
+  categoria = form.categoria.data
+  console = form.console.data
   
   # boolean para verificar se o jogo que se deseja criar já existe no banco de dados
   if Jogos.query.filter_by(nome=nome).first():
@@ -109,18 +134,21 @@ def criar():
 
 @app.route('/atualizar', methods=['POST', ])
 def atualizar():
-  jogo = Jogos.query.filter_by(id=request.form['id']).first()
-  jogo.nome = request.form['nome']
-  jogo.categoria = request.form['categoria']
-  jogo.console = request.form['console']
+  form = FormJogo(request.form)
   
-  db.session.add(jogo)
-  db.session.commit()
-  
-  arquivo = request.files['arquivo']
-  upload_path = app.config['UPLOAD_PATH']
-  deletar_imagem(jogo.id)
-  arquivo.save(f'{upload_path}/artwork{jogo.id}-{time()}.jpg')
+  if form.validate_on_submit():
+    jogo = Jogos.query.filter_by(id=request.form['id']).first()
+    jogo.nome = form.nome.data
+    jogo.categoria = form.categoria.data
+    jogo.console = form.console.data
+    
+    db.session.add(jogo)
+    db.session.commit()
+    
+    arquivo = request.files['arquivo']
+    upload_path = app.config['UPLOAD_PATH']
+    deletar_imagem(jogo.id)
+    arquivo.save(f'{upload_path}/artwork{jogo.id}-{time()}.jpg')
   
   return redirect(url_for('index'))
 
@@ -139,7 +167,9 @@ def deletar(identificador):
 
 @app.route('/login')
 def login():
+  form = FormLogin()
   return render_template('login.html',
+                         form=form,
                          next=request.args.get('next', url_for('index')))
 
 
@@ -159,12 +189,14 @@ def imagem(nome_arquivo):
 
 @app.route('/autenticar', methods=['POST', ])
 def autenticar():
+  form = FormLogin(request.form)
+  
   # boolean que identificá a presença do usuário no banco de dados
-  usuário = Usuários.query.filter_by(nickname=request.form['usuário']).first()
+  usuário = Usuários.query.filter_by(nickname=form.nickname.data).first()
   
   if usuário:
     
-    if request.form['senha'] == usuário.senha:
+    if form.senha.data == usuário.senha:
       session['usuário_autenticado'] = usuário.nickname
       flash('Usuário ' + usuário.nickname + ' autenticado com sucesso!')
       next_page = request.form['next']

@@ -1,7 +1,7 @@
 {% extends 'template.html' %}
 {% block content %}
-    <form action="{{ url_for('atualizar') }}" method="post" enctype="multipart/form-data">
-        <figure class="img-thumbnail col-md-4">
+    <form class="formJogo" action="{{ url_for('atualizar') }}" method="post" enctype="multipart/form-data">
+        <figure class="img-thumbnail col-md-4 formImagem">
             <img class="img-fluid" src="{{ url_for('imagem', nome_arquivo=capa_jogo) }}" alt="">
             <figcaption>
                 <label class="fileContainer">
@@ -11,33 +11,24 @@
             </figcaption>
         </figure>
         <fieldset>
-            <input type="hidden" name="id" value="{{ jogo.id }}">
-            <div class="form-group">
-                <label for="nome">Nome</label>
-                <input type="text"
-                       id="nome"
-                       name="nome"
-                       class="form-control"
-                       value="{{ jogo.nome }}">
+            <input type="hidden" name="id" value="{{ id }}">
+            {{ form.csrf_token() }}
+            <div>
+                {{ form.nome.label(class="label") }}
+                {{ form.nome(class="input") }}
             </div>
-            <div class="form-group">
-                <label for="categoria">Categoria</label>
-                <input type="text"
-                       id="categoria"
-                       name="categoria"
-                       class="form-control"
-                       value="{{ jogo.categoria }}">
+            <div>
+                {{ form.categoria.label(class="label") }}
+                {{ form.categoria(class="input") }}
             </div>
-            <div class="form-group">
-                <label for="console">Console</label>
-                <input type="text"
-                       id="console"
-                       name="console"
-                       class="form-control"
-                       value="{{ jogo.console }}">
+            <div>
+                {{ form.console.label(class="label") }}
+                {{ form.console(class="input") }}
             </div>
-            <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
-            <a class="btn" href="{{ url_for('index') }}">Voltar</a>
+            <div class="buttons">
+                {{ form.submit(class="button") }}
+                <a class="button" href="{{ url_for('index') }}">Voltar</a>
+            </div>
         </fieldset>
     </form>
 {% endblock %}
